@@ -1,11 +1,16 @@
 ﻿using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Serialization.HybridRow.Schemas;
 using System.Net;
 
 namespace PoC.AzureCosmosDbNoSQL.CRUD
 {
     internal class Create
     {
+        public Create()
+        {
+            Console.WriteLine();
+            Console.WriteLine(nameof(Create));
+            Console.WriteLine();
+        }
         public async Task Insert(Container container, Product product)
         {
             try
@@ -25,15 +30,15 @@ namespace PoC.AzureCosmosDbNoSQL.CRUD
             }
             catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.Conflict)
             {
-                // Add logic to handle conflicting ids
+                Console.WriteLine(ex.Message);
             }
-            catch (CosmosException)
+            catch (CosmosException ex)
             {
-                // Add general exception handling logic
+                Console.WriteLine(ex.Message);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Add general exception handling logic
+                Console.WriteLine(ex.Message);
             }
         }
     }

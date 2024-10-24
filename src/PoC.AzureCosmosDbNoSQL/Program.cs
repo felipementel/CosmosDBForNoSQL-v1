@@ -17,23 +17,29 @@ builder.SetBasePath(Directory.GetCurrentDirectory())
 
 IConfigurationRoot configuration = builder.Build();
 
-string? endpoint = configuration.GetSection("CosmosDBForNoSQL:Endpoint").Value;
-string? key = configuration.GetSection("CosmosDBForNoSQL:Key").Value;
-
 Conexao conexao = new();
-CosmosClient client = await conexao.ObterConexao(endpoint, key);
+CosmosClient client = await conexao.ObterConexao(configuration);
 
-await client.GetDatabase("CanalDEPLOY").DeleteAsync().ConfigureAwait(false);
+//Microsoft.Azure.Cosmos.Database databaseCanalDEPLOY = client.GetDatabase("CanalDEPLOY");
+//if (databaseCanalDEPLOY != null)
+//{
+//    await databaseCanalDEPLOY.DeleteAsync();
+//}
+
+
+//cosmos-provisioned-throughput-unifeso
+//cosmos-serverless-unifeso
+
 
 DatabaseResponse databaseResponse = await client.CreateDatabaseIfNotExistsAsync("CanalDEPLOY");
+
+Microsoft.Azure.Cosmos.Database databaseCanalDEPLOY = client.GetDatabase(databaseResponse.Database.Id);
 Console.WriteLine("Created Database: {0}\n", databaseResponse.Database.Id);
 
 
-Microsoft.Azure.Cosmos.Database database = client.GetDatabase("CanalDEPLOY");
-
 {
     Container container;
-    ContainerProperties containerProperties = new("products", "/CategoryId");
+    ContainerProperties containerProperties = new("products", "/categoryId");
     containerProperties.IndexingPolicy.Automatic = true;
     containerProperties.IndexingPolicy.IndexingMode = IndexingMode.Consistent;
     containerProperties.ConflictResolutionPolicy = new ConflictResolutionPolicy
@@ -41,9 +47,9 @@ Microsoft.Azure.Cosmos.Database database = client.GetDatabase("CanalDEPLOY");
         Mode = ConflictResolutionMode.LastWriterWins,
         ResolutionPath = "/_ts"
     };
-    containerProperties.DefaultTimeToLive = 10;
+    //containerProperties.DefaultTimeToLive = 10;
 
-    container = await database.CreateContainerIfNotExistsAsync(containerProperties, 400);
+    container = await databaseCanalDEPLOY.CreateContainerIfNotExistsAsync(containerProperties); // Provimento de Throughput 400 RU/s
 
     //container = await database.CreateContainerIfNotExistsAsync(
     //    "products",
@@ -67,12 +73,18 @@ Microsoft.Azure.Cosmos.Database database = client.GetDatabase("CanalDEPLOY");
     var product = ProductFaker.Generate();
 
     //Escrita
-    Create create = new();
-    await create.Insert(container, product);
+    //Create create = new();
+    //await create.Insert(container, product);
 
-    //Leitura
-    Read read = new();
-    await read.Get(container, product);
+    //BulkInsert bulkInsert = new();
+    //Container containerBulk = await bulkInsert.BulkInsertModel(configuration);
+
+    ////Leitura
+    //Read read = new();
+    //await read.Get(container, product);
+
+    //ReadList readList = new();
+    //await readList.GetList(containerBulk);
 
     //update
     Update update = new();
@@ -80,7 +92,7 @@ Microsoft.Azure.Cosmos.Database database = client.GetDatabase("CanalDEPLOY");
     await update.Updating_Replace(container, product);
 
     //ttl
-    product.TTL = 30;
+    product.TTL = 5;
     await container.UpsertItemAsync<Product>(product);
 
     //delete
@@ -90,10 +102,9 @@ Microsoft.Azure.Cosmos.Database database = client.GetDatabase("CanalDEPLOY");
 }
 // ==================================================
 {
-    Container container2 = await database.CreateContainerIfNotExistsAsync(
+    Container container2 = await databaseCanalDEPLOY.CreateContainerIfNotExistsAsync(
     "simpleProducts",
-    "/Category",
-    400);
+    "/category");
 
     var productSimpleFaker = new Faker<ProductSimple>("pt_BR")
         .CustomInstantiator(f => new ProductSimple(
@@ -117,8 +128,8 @@ Microsoft.Azure.Cosmos.Database database = client.GetDatabase("CanalDEPLOY");
 
 
     //Bulk Operations
-    BulkCosmos bulkCosmos = new();
-    await bulkCosmos.BulkMode(container2, productSimpleFaker, configuration);
+    //BulkCosmos bulkCosmos = new();
+    //await bulkCosmos.BulkMode(container2, productSimpleFaker, configuration);
 
 
     //Custom Queries
@@ -128,14 +139,14 @@ Microsoft.Azure.Cosmos.Database database = client.GetDatabase("CanalDEPLOY");
 
     //Index
     CosmosIndex cosmosIndex = new();
-    await cosmosIndex.CreateIndex(database);
+    await cosmosIndex.CreateIndex(databaseCanalDEPLOY);
 
 
     //Conflito
     CosmosConflict cosmosConflict = new();
-    await cosmosConflict.CreateNewContainer(database);
+    await cosmosConflict.CreateNewContainer(databaseCanalDEPLOY);
 
     //Performance
     CosmosPerformance cosmosPerformance = new();
-    await cosmosPerformance.GetPerformance(database);
+    await cosmosPerformance.GetPerformance(databaseCanalDEPLOY);
 }

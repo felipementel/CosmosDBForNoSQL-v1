@@ -23,7 +23,6 @@ internal class CosmosConcorrencia
         await container.UpsertItemAsync<ProductSimple>(product1, requestOptions: optionsRU);
 
 
-
         // Simulando concorrência
         {
             ItemResponse<ProductSimple> Product_ORIGINAL = await container.ReadItemAsync<ProductSimple>(product1.Id, partitionKey);

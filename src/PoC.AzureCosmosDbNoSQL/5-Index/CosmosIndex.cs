@@ -35,7 +35,7 @@ namespace PoC.AzureCosmosDbNoSQL._5_Index
                 IndexingPolicy = policy,
             };
 
-            Container container = await database.CreateContainerIfNotExistsAsync(options, throughput: 400);
+            Container container = await database.CreateContainerIfNotExistsAsync(options); //throughput: 400
         }
     }
 }

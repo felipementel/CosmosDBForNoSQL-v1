@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
 using System.Text.Json.Serialization;
 
+//[JsonProperty(PropertyName = "id")]
+//JsonPropertyName
 public class Product
 {
     public Product()
@@ -26,17 +28,22 @@ public class Product
         TTL = tTL;
     }
 
-    [JsonProperty(PropertyName = "id")]
+    [JsonProperty("id")]
     public string Id { get; set; }
 
+    [JsonProperty("name")]
     public string Name { get; set; }
 
+    [JsonProperty("categoryId")]
     public string CategoryId { get; set; }
 
+    [JsonProperty("category")]
     public string Category { get; set; }
 
+    [JsonProperty("price")]
     public double Price { get; set; }
 
+    [JsonProperty("tags")]
     public string[] Tags { get; set; }
 
     //[JsonProperty(PropertyName = "ttl", NullValueHandling = NullValueHandling.Ignore)]
@@ -58,16 +65,16 @@ public class ProductSimple
         Price = price;
     }
 
-    //[JsonPropertyName("id")]
-    [JsonProperty(PropertyName = "id")]
+    [JsonProperty("id")]
     public string Id { get; set; }
 
-    //[JsonPropertyName("name")]
+    [JsonProperty("name")]
     public string Name { get; set; }
 
-    //[JsonPropertyName("category")]
+    [JsonProperty("category")]
     public string Category { get; set; }
 
+    [JsonProperty("price")]
     public decimal Price { get; set; }
 }
 

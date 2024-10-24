@@ -6,7 +6,7 @@ namespace PoC.AzureCosmosDbNoSQL._6_Conflito
     {
         public async Task CreateNewContainer(Database database)
         {
-            ContainerProperties properties = new("products", "/CategoryId")
+            ContainerProperties properties = new("products", "/categoryId")
             {
                 ConflictResolutionPolicy = new ConflictResolutionPolicy()
                 {
