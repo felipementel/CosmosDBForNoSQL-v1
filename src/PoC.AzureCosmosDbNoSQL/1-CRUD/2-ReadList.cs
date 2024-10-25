@@ -13,10 +13,11 @@ internal class ReadList
     }
     public async Task GetList(Microsoft.Azure.Cosmos.Container container)
     {
+        // 1> Forma correta
         string continuationToken = null;
         int page = 0;
 
-        //query to count
+        // 1.1> Query to count
         var countTotal = container
             .GetItemLinqQueryable<Product>(allowSynchronousQueryExecution: true, 
             continuationToken: continuationToken,
@@ -25,6 +26,7 @@ internal class ReadList
 
         Console.WriteLine($"Total items: {countTotal}");
 
+        // 1.2> 
         do
         {
             int MaxItens = 100;
@@ -36,7 +38,7 @@ internal class ReadList
                     MaxItemCount = MaxItens
                 })
                 .OrderBy(p => p.Price)
-                .ToFeedIterator<Product>();
+                .ToFeedIterator<Product>(); // <-- The magic
 
             int pageTotal = (int)Math.Ceiling((double)countTotal / MaxItens);
 
@@ -47,7 +49,6 @@ internal class ReadList
 
                 int count = response.Count;
                 int i = 1;
-
 
                 foreach (Product product in response)
                 {
@@ -63,6 +64,7 @@ internal class ReadList
             }
         } while (continuationToken != null);
 
+        // 2:PIOR> Sem pagição, com problema causado pelo .ToList
         var itemList = container
             .GetItemLinqQueryable<Product>(allowSynchronousQueryExecution: true,
             null,
@@ -76,7 +78,7 @@ internal class ReadList
 
         foreach (Product product in itemList)
         {
-            Console.WriteLine($"[{product.Id}]\t{product.Name,35}\t{product.Price,15:C}");
+            Console.WriteLine($"\t{product.Name,35}\t{product.Price,15:C}");
         }
     }
 }
